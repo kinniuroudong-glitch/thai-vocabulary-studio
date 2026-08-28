@@ -55,6 +55,7 @@ body[data-theme="amber"]{--bg-start:#171412;--bg-mid:#4a2c20;--bg-end:#101416;--
 body[data-theme="midnight"]{--bg-start:#0f172a;--bg-mid:#312e81;--bg-end:#080b18;--glow-a:rgba(99,102,241,.28);--glow-b:rgba(56,189,248,.18);--glow-c:rgba(129,140,248,.2)}
 body[data-theme="teal"]{--bg-start:#062e2e;--bg-mid:#0f766e;--bg-end:#082f49;--glow-a:rgba(45,212,191,.25);--glow-b:rgba(34,211,238,.18);--glow-c:rgba(14,116,144,.28)}
 body[data-theme="plum"]{--bg-start:#2b1525;--bg-mid:#7c2d5c;--bg-end:#261027;--glow-a:rgba(244,114,182,.2);--glow-b:rgba(192,132,252,.18);--glow-c:rgba(190,24,93,.24)}
+body[data-theme="rebel"]{--bg:#100619;--bg-start:#0d0616;--bg-mid:#34104d;--bg-end:#170823;--glow-a:rgba(177,48,255,.58);--glow-b:rgba(103,32,194,.46);--glow-c:rgba(226,92,255,.36);--glass-a:rgba(119,49,156,.26);--glass-b:rgba(19,6,34,.38);--panel-glass:rgba(21,8,39,.34);--control-glass:rgba(24,8,42,.58);--line:rgba(229,190,255,.2);--line-strong:rgba(239,208,255,.38);--accent:#d168ff;--accent-soft:rgba(209,104,255,.19);--shadow:0 30px 80px rgba(10,0,25,.54)}
 body[data-theme="navy-gold"]{--bg-start:#111827;--bg-mid:#1e3a5f;--bg-end:#6b512c;--glow-a:rgba(96,165,250,.2);--glow-b:rgba(251,191,36,.16);--glow-c:rgba(180,125,45,.22)}
 body[data-theme="mist"]{--bg-start:#1e1b2e;--bg-mid:#4c466a;--bg-end:#12101b;--glow-a:rgba(196,181,253,.18);--glow-b:rgba(129,140,248,.2);--glow-c:rgba(139,92,246,.2)}
 body[data-theme="graphite"]{--bg-start:#111827;--bg-mid:#1f3d46;--bg-end:#0e171b;--glow-a:rgba(45,212,191,.17);--glow-b:rgba(148,163,184,.15);--glow-c:rgba(30,136,157,.2)}
@@ -67,6 +68,13 @@ body::before{
   background-size:42px 42px;
   mask-image:linear-gradient(to bottom,black,transparent 86%);
 }
+body::after{content:"";display:none;position:fixed;inset:-20%;z-index:0;pointer-events:none}
+body[data-theme="rebel"]::after{display:block;opacity:.85;filter:blur(44px);background:
+  radial-gradient(ellipse at 12% 28%,rgba(194,67,255,.48),transparent 30%),
+  radial-gradient(ellipse at 83% 17%,rgba(125,39,231,.42),transparent 28%),
+  radial-gradient(ellipse at 70% 78%,rgba(239,99,255,.28),transparent 27%),
+  radial-gradient(ellipse at 28% 88%,rgba(93,29,174,.4),transparent 31%);animation:rebel-smoke 13s ease-in-out infinite alternate}
+@keyframes rebel-smoke{from{transform:scale(1) translate3d(-1%,-1%,0)}to{transform:scale(1.1) translate3d(2%,1%,0)}}
 button,input,select{font:inherit}
 button,select{color:inherit}
 button{cursor:pointer}
@@ -76,8 +84,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   width:min(1100px,calc(100% - 30px));margin:0 auto;padding:18px 0 12px;justify-content:flex-end;
   backdrop-filter:blur(18px);
 }
-.brand-mark{display:flex;align-items:center;margin-right:auto;width:44px;height:44px;border-radius:14px;overflow:hidden;box-shadow:0 8px 22px rgba(0,0,0,.22)}
-.brand-mark img{display:block;width:100%;height:100%;object-fit:cover}
 .theme-control{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:13px;white-space:nowrap}
 .theme-select{
   max-width:150px;border:1px solid var(--line);border-radius:12px;padding:9px 30px 9px 10px;
@@ -106,6 +112,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   content:"";position:absolute;z-index:-1;width:360px;height:360px;right:-150px;top:-190px;border-radius:50%;
   background:radial-gradient(circle,rgba(49,194,168,.16),transparent 67%);
 }
+body[data-theme="rebel"] .study-card::before{width:520px;height:520px;right:-190px;top:-250px;background:radial-gradient(circle,rgba(211,91,255,.34),transparent 67%)}
 .study-card::after{
   content:"";position:absolute;z-index:-1;left:0;right:0;top:0;height:1px;
   background:linear-gradient(90deg,transparent,rgba(255,255,255,.32),transparent);
@@ -177,7 +184,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     background:linear-gradient(180deg,rgba(4,20,23,.88),rgba(4,20,23,.46));
     backdrop-filter:blur(22px) saturate(130%);-webkit-backdrop-filter:blur(22px) saturate(130%);
   }
-  .brand-mark{display:none}
   .top-select{
     order:1;grid-column:1;max-width:none;width:100%;min-width:0;height:42px;
     padding:0 27px 0 10px;font-size:14px;
@@ -219,9 +225,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 </head>
 <body>
 <header class="topbar">
-  <div class="brand-mark" aria-label="Study Like a Rebel">
-    <img src="./assets/icons/rebel-logo.png?v=2" alt="Study Like a Rebel">
-  </div>
   <label class="theme-control">
     <span>背景</span>
     <select class="theme-select" id="themeSelect" aria-label="选择背景主题"></select>
@@ -289,8 +292,10 @@ const PROJECT_SIZE=500;
 const PROJECT_COUNT=Math.ceil(DATA.length/PROJECT_SIZE);
 const STORAGE_PREFIX="thai_card_studio_v2";
 const PROGRESS_KEY=`${STORAGE_PREFIX}_progress`;
+const THEME_STORAGE_KEY=`${STORAGE_PREFIX}_theme_v2`;
 const LEGACY_STORAGE_PREFIX="thai_card_1000_v1";
 const THEME_OPTIONS=[
+  {id:"rebel",name:"紫焰烟雾"},
   {id:"amber",name:"琥珀咖啡"},
   {id:"midnight",name:"午夜蓝紫"},
   {id:"teal",name:"青绿海湾"},
@@ -302,7 +307,7 @@ const THEME_OPTIONS=[
   {id:"bean",name:"豆沙奶油"},
   {id:"obsidian",name:"黑曜青金"}
 ];
-const DEFAULT_THEME="teal";
+const DEFAULT_THEME="rebel";
 
 const $=selector=>document.querySelector(selector);
 const elements={
@@ -396,7 +401,7 @@ function applyTheme(themeId,notify=false){
   const theme=THEME_OPTIONS.find(item=>item.id===themeId)||THEME_OPTIONS.find(item=>item.id===DEFAULT_THEME);
   document.body.dataset.theme=theme.id;
   elements.themeSelect.value=theme.id;
-  localStorage.setItem(`${STORAGE_PREFIX}_theme`,theme.id);
+  localStorage.setItem(THEME_STORAGE_KEY,theme.id);
   if(notify)showToast(`已切换：${theme.name}`);
 }
 function speakThai(text){
@@ -583,7 +588,7 @@ document.addEventListener("visibilitychange",()=>{
 window.addEventListener("pagehide",savePosition);
 
 populateThemes();
-applyTheme(localStorage.getItem(`${STORAGE_PREFIX}_theme`)||DEFAULT_THEME);
+applyTheme(localStorage.getItem(THEME_STORAGE_KEY)||DEFAULT_THEME);
 populateProjects();
 render();
 </script>
