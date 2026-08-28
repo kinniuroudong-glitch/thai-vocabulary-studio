@@ -399,6 +399,20 @@ function showMobileControls(){
   clearTimeout(controlsHideTimer);
   controlsHideTimer=window.setTimeout(()=>document.body.classList.add("controls-hidden"),5000);
 }
+let controlsTouchStartY=null;
+function beginControlsReveal(event){
+  if(!window.matchMedia("(max-width: 560px)").matches||event.touches.length!==1)return;
+  controlsTouchStartY=event.touches[0].clientY;
+}
+function revealControlsOnPullDown(event){
+  if(controlsTouchStartY===null||event.touches.length!==1)return;
+  const distance=event.touches[0].clientY-controlsTouchStartY;
+  if(distance>=36){
+    controlsTouchStartY=null;
+    showMobileControls();
+  }
+}
+function clearControlsReveal(){controlsTouchStartY=null}
 function pad(value,size=3){return String(value).padStart(size,"0")}
 function showToast(message){
   elements.toast.textContent=message;elements.toast.classList.add("show");
@@ -596,10 +610,10 @@ document.addEventListener("visibilitychange",()=>{
   if(document.visibilityState==="hidden")savePosition();
 });
 window.addEventListener("pagehide",savePosition);
-for(const eventName of ["pointerdown","touchstart","wheel","keydown","scroll"]){
-  window.addEventListener(eventName,showMobileControls,{passive:true});
-}
-window.addEventListener("resize",showMobileControls,{passive:true});
+window.addEventListener("touchstart",beginControlsReveal,{passive:true});
+window.addEventListener("touchmove",revealControlsOnPullDown,{passive:true});
+window.addEventListener("touchend",clearControlsReveal,{passive:true});
+window.addEventListener("touchcancel",clearControlsReveal,{passive:true});
 
 populateThemes();
 applyTheme(localStorage.getItem(THEME_STORAGE_KEY)||DEFAULT_THEME);
