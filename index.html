@@ -89,9 +89,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .word-jump[type=number]{appearance:textfield;-moz-appearance:textfield}
 .word-line{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .thai-word{
-  margin:0;font-family:"Noto Sans Thai","Leelawadee UI","Tahoma",sans-serif;
+  margin:0;font-family:"Noto Sans Thai","Leelawadee UI","Tahoma",sans-serif;cursor:pointer;user-select:none;
   font-size:clamp(48px,8.2vw,76px);font-weight:800;line-height:1.16;letter-spacing:-.025em;
 }
+.thai-word:hover{color:#9bf0df}
+.thai-word:focus-visible{outline:2px solid var(--accent);outline-offset:6px;border-radius:8px}
 .thai-word.compact{font-size:clamp(36px,6.5vw,58px)}
 .speak-button{
   display:grid;place-items:center;width:42px;height:42px;border:1px solid var(--line);border-radius:50%;
@@ -131,6 +133,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 @media(max-width:850px){
   .deck-shell{grid-template-columns:1fr}.rail-button,.mobile-nav{display:none}
   .study-card{min-height:0;cursor:pointer}
+  .word-jump{font-size:16px}
+  .speak-button{display:none}
 }
 @media(max-width:560px){
   .topbar{position:relative;width:min(100% - 22px,1100px);padding-top:12px;gap:10px;flex-wrap:wrap}
@@ -165,7 +169,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
         </div>
 
         <div class="word-line">
-          <h2 class="thai-word" id="thaiWord"></h2>
+          <h2 class="thai-word" id="thaiWord" role="button" tabindex="0" aria-label="点击朗读单词"></h2>
           <button class="speak-button" id="speakWord" type="button" aria-label="朗读单词">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 9v6h4l5 4V5L9 9H5Z"/><path d="M17 8.5a5 5 0 0 1 0 7"/><path d="M19.5 6a8.5 8.5 0 0 1 0 12"/></svg>
           </button>
@@ -334,13 +338,20 @@ function jumpToWord(value){
   if(!Number.isInteger(requested)||requested<1||requested>rows.length){
     elements.wordJump.value=String(state.index+1);
     showToast(`请输入 1–${rows.length} 的词序号`);
+    finishWordJump();
     return;
   }
   const target=requested-1;
-  if(target===state.index)return;
+  if(target===state.index){finishWordJump();return}
   const direction=target>state.index?1:-1;
   state.index=target;
   render(direction);
+  finishWordJump();
+}
+function finishWordJump(){
+  const scrollY=window.scrollY;
+  elements.wordJump.blur();
+  requestAnimationFrame(()=>window.scrollTo({left:0,top:scrollY,behavior:"auto"}));
 }
 
 elements.projectSelect.addEventListener("change",event=>{
@@ -358,6 +369,15 @@ elements.prevButton.addEventListener("click",()=>move(-1));
 elements.mobilePrev.addEventListener("click",()=>move(-1));
 elements.nextButton.addEventListener("click",()=>move(1));
 elements.mobileNext.addEventListener("click",()=>move(1));
+elements.thaiWord.addEventListener("click",event=>{
+  event.stopPropagation();
+  speakThai(elements.thaiWord.textContent);
+});
+elements.thaiWord.addEventListener("keydown",event=>{
+  if(event.key!=="Enter"&&event.key!==" ")return;
+  event.preventDefault();event.stopPropagation();
+  speakThai(elements.thaiWord.textContent);
+});
 elements.studyCard.addEventListener("click",event=>{
   const target=event.target.closest("[data-speak]");
   if(target){speakThai(target.dataset.speak);return}
@@ -371,7 +391,6 @@ elements.wordJump.addEventListener("keydown",event=>{
   if(event.key!=="Enter")return;
   event.preventDefault();
   jumpToWord(event.currentTarget.value);
-  event.currentTarget.blur();
 });
 document.addEventListener("keydown",event=>{
   if(["INPUT","SELECT","TEXTAREA"].includes(document.activeElement?.tagName))return;
