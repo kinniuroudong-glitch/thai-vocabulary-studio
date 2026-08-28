@@ -183,7 +183,10 @@ body[data-theme="rebel"] .study-card::before{width:520px;height:520px;right:-190
     margin:0;padding:calc(8px + env(safe-area-inset-top)) 10px 8px;
     background:linear-gradient(180deg,rgba(4,20,23,.88),rgba(4,20,23,.46));
     backdrop-filter:blur(22px) saturate(130%);-webkit-backdrop-filter:blur(22px) saturate(130%);
+    transition:transform .32s cubic-bezier(.22,.8,.25,1),opacity .22s ease;
+    will-change:transform;
   }
+  body.controls-hidden .topbar{transform:translateY(calc(-100% + 8px));opacity:.68}
   .top-select{
     order:1;grid-column:1;max-width:none;width:100%;min-width:0;height:42px;
     padding:0 27px 0 10px;font-size:14px;
@@ -389,6 +392,13 @@ function savePosition(){
   state.positions[state.project]=state.index;
   writeStoredValue(PROGRESS_KEY,JSON.stringify({version:2,project:state.project,positions:state.positions,updatedAt:Date.now()}));
 }
+let controlsHideTimer=0;
+function showMobileControls(){
+  if(!window.matchMedia("(max-width: 560px)").matches)return;
+  document.body.classList.remove("controls-hidden");
+  clearTimeout(controlsHideTimer);
+  controlsHideTimer=window.setTimeout(()=>document.body.classList.add("controls-hidden"),5000);
+}
 function pad(value,size=3){return String(value).padStart(size,"0")}
 function showToast(message){
   elements.toast.textContent=message;elements.toast.classList.add("show");
@@ -586,11 +596,16 @@ document.addEventListener("visibilitychange",()=>{
   if(document.visibilityState==="hidden")savePosition();
 });
 window.addEventListener("pagehide",savePosition);
+for(const eventName of ["pointerdown","touchstart","wheel","keydown","scroll"]){
+  window.addEventListener(eventName,showMobileControls,{passive:true});
+}
+window.addEventListener("resize",showMobileControls,{passive:true});
 
 populateThemes();
 applyTheme(localStorage.getItem(THEME_STORAGE_KEY)||DEFAULT_THEME);
 populateProjects();
 render();
+showMobileControls();
 </script>
 </body>
 </html>
