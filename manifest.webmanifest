@@ -1,0 +1,26 @@
+{
+  "name": "泰语词汇卡片",
+  "short_name": "泰语词卡",
+  "description": "泰语单词、例句与逐词翻译卡片学习工具",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#062e2e",
+  "theme_color": "#087f86",
+  "icons": [
+    {
+      "src": "./assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
